@@ -58,7 +58,7 @@ class BehaviorDetector:
         self.omega_rois = omega_rois
         self.arm_nums = len(arms_roi)
 
-    def CreatJson(self):
+    def CreateJson(self):
         with open(self.json_path, 'w') as f:
             dic = {
                 'active pixel path':self.actpixel_path,
@@ -74,7 +74,11 @@ class BehaviorDetector:
             json.dump(dic, f, indent=4)
         f.close()
 
-    def RatiosDetect(self):       
+# Calculate the ratios of fish in the different tunnels respectively. And plot the ratios.
+    def RatiosDetect(self):
+        """
+        Calculate the ratios of fish in the different tunnels respectively.
+        """       
         ratios = []
         arms = len(self.arms_roi)
         min_size = self.minsize
@@ -181,22 +185,9 @@ class BehaviorDetector:
             plt.savefig(os.path.join(self.save_dir,name+'.png'), dpi=dpi)
         plt.show()
 
-    def SeqDetect(self, active_pixel):
-        """
-        Detect the ratios and the time of the fish entering the reward region.
-        
-        Parameters
-        ----------       
-        active_pixel : DataFrame
-            
 
-        regions : list
-            
-        Returns
-        -------
-        Sequences : array
-
-        """
+# Detect the order of fish entering the different tunnels.
+    def SeqDetect(self, active_pixel: pd.DataFrame):
         arms = len(self.arms_roi)
         sequences = []
         framenum = []
@@ -216,6 +207,9 @@ class BehaviorDetector:
         return sequences, framenum
 
     def SeqInDiffpart(self):
+        """
+        Detect the order of fish entering the different tunnels.
+        """
         with open(self.json_path,'r') as f:
             jsondata = json.load(f)
         try:
@@ -244,7 +238,11 @@ class BehaviorDetector:
                 json.dump(jsondata, f, indent=4)
                 f.close()
 
-    def ProbaDetect(self, start_arm):
+# Detect the probabilities of fish traveling from one tunnel to others respectively.
+    def ProbaDetect(self, start_arm:int):
+        """
+        Detect the probabilities of fish traveling from one tunnel to others respectively.
+        """
         start_idx = np.where(self.seqs == start_arm)[0]
         start_index = []
         for i in range(len(start_idx)-1):
@@ -263,8 +261,12 @@ class BehaviorDetector:
         swimming_seqences = np.sort(swimming_seqences.view(dtype=[('index', np.float64), ('count', np.float64)]),order='index',axis=0)
 
         return swimming_seqences
-        
+
+
     def ProbToDifArms(self):
+        """
+        Combine all probabilities that fish traveling from every tunnel.
+        """
         ProbToDifArms=[]
         for i in range(1,self.arm_nums+1):
             ProbToDifArms.append(self.ProbaDetect(i))
@@ -302,6 +304,8 @@ class BehaviorDetector:
             plt.tight_layout()
             plt.savefig(os.path.join(self.save_dir,filename), dpi=dpi)
 
+
+# Detect fish's moving trace by maximum projection.
     def ActPixelCount(self, iter=1, time_min=None):
         counts=[]
         if 'RBin' in self.actpixel_path:
@@ -346,42 +350,9 @@ class BehaviorDetector:
             if save == True:
                 plt.savefig(os.path.join(self.save_dir, filename+' '+str(n)+ '.png'), dpi=dpi)
 
-    def RestructureImg(self, active_pixel):
-        """
-        Parameters
-        ----------
-        active pixel : DataFrame
-            Include the position and intensity of the each pixel     
-        
-        Returns
-        -------
-        restructured image
-        """
-        backImg_gray = cv2.cvtColor(self.backImg, cv2.COLOR_RGB2GRAY)
-        Img_gray_1D = backImg_gray.reshape(self.imgshape[0]*self.imgshape[1]).copy()
-        for i in range(len(active_pixel)//2):
-            Img_gray_1D[active_pixel.iloc[i*2]] = active_pixel.iloc[i*2+1]
-        restructuredImg = Img_gray_1D.reshape(self.imgshape[:2])
-        
-        cv2.imshow('Restructured Image', restructuredImg)
-        key = cv2.waitKey(0)
-        if key == ord('q'):
-            cv2.destroyAllWindows()
-        return restructuredImg
-
-    def DistanceDetect(self, dist_range):
+    def DistanceDetect(self, dist_range: int):
         """
         Detect the ratios and the time of the fish entering the reward region.
-        
-        Parameters
-        ----------      
-        dist_range : dict
-            The ranges of different distance.
-            
-        Returns
-        -------
-        Ratios : dataframe
-
         """
         pos_count_hour = []
         for n in range(self.time):
@@ -501,3 +472,16 @@ def PlotProbDifFishInRoi(ProbOfFish:list, fontsize=35, ref = np.array([33]*300),
     plt.tight_layout()
     if save:
         plt.savefig(save_dir+filename,dpi=dpi)
+
+def RestructureImg(backgound_img, active_pixel: pd.DataFrame):
+    backImg_gray = cv2.cvtColor(backgound_img, cv2.COLOR_RGB2GRAY)
+    Img_gray_1D = backImg_gray.reshape(backgound_img.shape[0]*backgound_img.shape[1]).copy()
+    for i in range(len(active_pixel)//2):
+        Img_gray_1D[active_pixel.iloc[i*2]] = active_pixel.iloc[i*2+1]
+    restructuredImg = Img_gray_1D.reshape(backgound_img.shape[:2])
+    
+    cv2.imshow('Restructured Image', restructuredImg)
+    key = cv2.waitKey(0)
+    if key == ord('q'):
+        cv2.destroyAllWindows()
+    return restructuredImg
