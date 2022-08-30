@@ -456,22 +456,25 @@ class BehaviorDetector:
         return FIRnums
 
 def PlotProbDifFishInRoi(ProbOfFish:list, fontsize=35, ref = np.array([33]*300), colors=[], save=False, save_dir=None, filename=None, dpi=150):
-    fig, ax = plt.subplots(len(ProbOfFish),1,figsize=(24,15), sharex=True, sharey=True)
-    plt.ylim(0,120)
-    plt.xlim(0,300)
-    plt.style.use('ggplot')
-    plt.yticks(range(0,120,50))
-    plt.xlabel('Time(min)', fontsize=fontsize+10)
-    plt.rcParams['xtick.labelsize']=fontsize
-    plt.rcParams['ytick.labelsize']=fontsize
-    for i in range(len(ProbOfFish)):
-        ax[i].plot(ProbOfFish[i], label='fish' + str(i+1), color=colors[i])
-        ax[i].plot(ref, color='gray',linestyle='dashed')
-    ax[2].set_ylabel('Ratio(%)', fontsize=fontsize+10)
-    fig.legend(loc = 'upper right', ncol=5, fontsize=fontsize-15, shadow=True, edgecolor='k')
-    plt.tight_layout()
-    if save:
-        plt.savefig(save_dir+filename,dpi=dpi)
+    if colors == []:
+        print('"Colors" is empty.')
+    else:
+        fig, ax = plt.subplots(len(ProbOfFish),1,figsize=(24,15), sharex=True, sharey=True)
+        plt.ylim(0,120)
+        plt.xlim(0,300)
+        plt.style.use('ggplot')
+        plt.yticks(range(0,120,50))
+        plt.xlabel('Time(min)', fontsize=fontsize+10)
+        plt.rcParams['xtick.labelsize']=fontsize
+        plt.rcParams['ytick.labelsize']=fontsize
+        for i in range(len(ProbOfFish)):
+            ax[i].plot(ProbOfFish[i], label='fish' + str(i+1), color=colors[i])
+            ax[i].plot(ref, color='gray',linestyle='dashed')
+        ax[2].set_ylabel('Ratio(%)', fontsize=fontsize+10)
+        fig.legend(loc = 'upper right', ncol=5, fontsize=fontsize-15, shadow=True, edgecolor='k')
+        plt.tight_layout()
+        if save:
+            plt.savefig(save_dir+filename,dpi=dpi)
 
 def RestructureImg(backgound_img, active_pixel: pd.DataFrame):
     backImg_gray = cv2.cvtColor(backgound_img, cv2.COLOR_RGB2GRAY)
