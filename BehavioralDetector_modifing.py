@@ -458,6 +458,7 @@ class BehaviorDetector:
 def PlotProbDifFishInRoi(ProbOfFish:list, fontsize=35, ref = np.array([33]*300), colors=[], save=False, save_dir=None, filename=None, dpi=150):
     if colors == []:
         print('"Colors" is empty.')
+        print('Please set the color list.')
     else:
         fig, ax = plt.subplots(len(ProbOfFish),1,figsize=(24,15), sharex=True, sharey=True)
         plt.ylim(0,120)
